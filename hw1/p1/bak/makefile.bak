@@ -1,0 +1,17 @@
+FTN = ifort
+OPT = -O2
+MPI = -DUSE_MPI=1
+DB= -g  -Wall 
+
+SRCDIR = $(PWD)
+
+all: pi 
+
+pi: pi.o ran1.o
+	$(FTN) pi.o ran1.o -o pi.x
+
+%.o: %.f90
+	$(FTN) -c $< -o $@
+
+clean: 
+	rm *.o

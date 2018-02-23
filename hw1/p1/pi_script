@@ -1,0 +1,13 @@
+#!/bin/bash 
+#SBATCH --nodes=1 
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=10
+#SBATCH --time=00:10:00 
+#SBATCH --verbose
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=jlestz@princeton.edu 
+
+module load openmpi
+
+export OMP_NUM_THREADS=20
+./omp_db.x > out_pi_omp

@@ -8,8 +8,8 @@
 program main 
   
   ! largest number of iterations: 10^n 
-  integer, parameter :: n = 16
-  integer*8 :: ntrials
+  integer*8, parameter :: n = 16
+  integer*8 :: ntrials,i
   real*8, parameter :: pi = 3.14159265358979326846
   real*8 :: pi_appx,err
   real*8 :: tbeg,tend

@@ -14,7 +14,7 @@ program main
   real*8 :: pi_appx,err
   real*8 :: tbeg,tend
   
-  real*8 :: pi_mc 
+  real*8 :: pi_omp
 
   ! run Monte Carlo calucation for 10^i trials
   ! compare the relative error to exact answer
@@ -22,7 +22,7 @@ program main
     ntrials=10**i
     ! time each call for scaling 
     call cpu_time(tbeg)
-    pi_appx = pi_mc(ntrials)
+    pi_appx = pi_omp(ntrials)
     call cpu_time(tend)
     err = abs(pi_appx - PI)
     print *, i,err,tend-tbeg

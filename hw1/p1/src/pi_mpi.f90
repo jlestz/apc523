@@ -20,7 +20,7 @@ function pi_mpi(n) result(pir)
   integer :: ierr,iproc,nproc
 
   ! Initialize MPI 
-  call MPI_INIT(ierr) 
+  ! call MPI_INIT(ierr) 
   call MPI_COMM_SIZE(MPI_COMM_WORLD,nproc,ierr)
   call MPI_COMM_RANK(MPI_COMM_WORLD,iproc,ierr)
 
@@ -50,17 +50,18 @@ function pi_mpi(n) result(pir)
   end do  
 
   ! all workers send mynout to master, which sums to nout
-  call MPI_REDUCE(mynout,nout,1,MPI_DOUBLE_PRECISION,MPI_SUM,0,MPI_COMM_WORLD,ierr)
+  call MPI_ALLREDUCE(mynout,nout,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
 
-  ! close MPI
-  call MPI_FINALIZE(ierr)
-  
   ! debug to determine how many trials actually executed 
-  print *, i
-
+  if (iproc < 1) then 
+    print *, i
+  end if 
   ! calculate pi by taking the ratio of points inside to outside 
   ! the unit cirle (compare area of circle to square)
   pir = 4*(1 - nout/n)
+  
+  ! close MPI
+  ! call MPI_FINALIZE(ierr)
 
   return 
 end function pi_mpi

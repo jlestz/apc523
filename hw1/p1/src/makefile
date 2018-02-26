@@ -1,23 +1,34 @@
 FTN = ifort
+OMP = $(FTN) -qopenmp
+MPI = mpifort
 OPT = -O2
 DB= -g  
-OMP= -qopenmp
 
-OBJ = pi_mc.o ran1.o 
+all: pi_omp pi_mpi
 
-all: pi pi_omp
+pi_omp : ran1.o pi_omp.o main_omp.o
+	$(OMP) $^ -o pi_omp.x
 
-pi: $(OBJ)
-	$(FTN) $(OBJ) main.o -o pi.x
+pi_mpi : ran1.o pi_mpi.o main_mpi.o 
+	$(MPI) $^ -o pi_mpi.x
 
-pi_omp : $(OBJ)
-	$(FTN) $(OMP) $(OBJ) main.o -o pi_omp.x
+omp_db : ran1.o pi_omp.o main_db.o $(OBJ)
+	$(OMP) $(DB) $^ -o omp_db.x 
 
-omp_db : main_db.o pi_mc.o ran1.o 
-	$(FTN) $(DB) $(OMP) $(OBJ) main_db.o -o omp_db.x 
+mueller_mpi : mueller_mpi.o
+	$(MPI) $^ -o mueller_mpi.x
+
+pi_omp.o : pi_omp.f90 
+	$(OMP) -c $^ -o $@
+
+pi_mpi.o : pi_mpi.f90
+	$(MPI) -c $^ -o $@
+
+mueller_mpi.o : mueller_mpi.f90 
+	$(MPI) -c $^ -o $@
 
 %.o: %.f90
-	$(FTN) -c -g $< -o $@
+	$(FTN) -c $< -o $@
 
 clean: 
 	rm *.o *.x

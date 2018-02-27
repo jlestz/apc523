@@ -10,7 +10,7 @@ program main_omp
   implicit none 
 
   ! largest number of iterations: 10^n 
-  integer*8, parameter :: n = 11
+  integer*8, parameter :: n = 12
   integer*8 :: ntrials,i
   real*8, parameter :: pi = 3.14159265358979326846
   real*8 :: pi_appx,err

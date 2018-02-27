@@ -9,6 +9,9 @@ all: pi_omp pi_mpi
 pi_omp : ran1.o pi_omp.o main_omp.o
 	$(OMP) $^ -o pi_omp.x
 
+pi_omp_scale : ran1.o pi_omp.o main_omp_scale.o
+	$(OMP) $^ -o pi_omp_scale.x
+
 pi_mpi : ran1.o pi_mpi.o main_mpi.o 
 	$(MPI) $^ -o pi_mpi.x
 
@@ -18,15 +21,30 @@ omp_db : ran1.o pi_omp.o main_db.o $(OBJ)
 mueller_mpi : mueller_mpi.o
 	$(MPI) $^ -o mueller_mpi.x
 
+test_mpi : main_test.f90 s1.f90 s2.f90
+	$(MPI) -g -O0 $^ -o test_mpi.x
+
+# OMP objects 
+main_omp_scale.o : main_omp_scale.f90 
+	$(OMP) -c $^ -o $@
+
+main_omp.o : main_omp.f90 
+	$(OMP) -c $^ -o $@
+
 pi_omp.o : pi_omp.f90 
 	$(OMP) -c $^ -o $@
 
+# MPI objects 
 pi_mpi.o : pi_mpi.f90
+	$(MPI) -c $^ -o $@
+
+main_mpi.o : main_mpi.f90 
 	$(MPI) -c $^ -o $@
 
 mueller_mpi.o : mueller_mpi.f90 
 	$(MPI) -c $^ -o $@
 
+# generic object 
 %.o: %.f90
 	$(FTN) -c $< -o $@
 

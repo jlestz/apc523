@@ -1,4 +1,4 @@
-! function for computing pi via Monte Carlo simulations 
+! subroutine for computing pi via Monte Carlo simulations 
 ! Jeff Lestz
 ! 22 Feb 2018
 !
@@ -7,25 +7,45 @@
 ! note: random walks will converge with sqrt(n)
 ! so accuracy to 10^n requires 10^2n trials
 
-function pi_omp(n) result(pir)
+subroutine pi_omp(n,pir) 
   implicit none 
   integer*8, intent(in) :: n
-  real*8 :: pir
+  real*8, intent(out) :: pir
   
   integer*8 :: i,u,v,w
-  real*8 :: r1,r2,nout
-  integer :: myid, OMP_GET_THREAD_NUM
+  integer*8 :: nout,jcount
+  real*8 :: r1,r2
+  integer :: myid,maxth,nth
+  integer :: OMP_GET_THREAD_NUM, OMP_GET_MAX_THREADS, OMP_GET_NUM_THREADS
 
-  !$OMP PARALLEL PRIVATE(myid,i,u,v,w,r1,r2),REDUCTION(+:nout)
+  ! initialize variables 
+  ! jcount is number of iterations done by each proc (for debug)
+  jcount = 0
+  ! nout is number of points falling outside unit circle
+  nout = 0
+
+  !$OMP PARALLEL PRIVATE(myid,i,u,v,w,r1,r2),REDUCTION(+:nout),REDUCTION(+:jcount)
   myid = OMP_GET_THREAD_NUM()
+
+  !if (myid < 1) then 
+  !  maxth = OMP_GET_MAX_THREADS()
+  !  nth = OMP_GET_NUM_THREADS()
+  !  print *, nth,maxth,"nth,maxth (pi_omp)"
+  !end if 
   
   ! initialize random number generator 
-  ! note: seeds must be different for each thread
-  ! else only doing n/threads unique trials
+  ! note: seeds should be different for each thread
+  ! else may only do n/threads unique trials. 
+  ! although ran1_init uses the system clock to avoid this, 
+  ! it would not provide independent random numbers for
+  ! all threads initializing with j = 0 for instance
   call ran1_init(myid,u,v,w)
 
   !$OMP DO
   do i=1,n
+
+    ! for debugging, count iterations done by each proc
+    jcount = jcount + 1
     
     ! generate x and y coordinates 
     ! generate random numbers 
@@ -42,16 +62,26 @@ function pi_omp(n) result(pir)
     ! and improve parallelism)
     nout = nout + floor(r1**2 + r2**2)
 
+    ! for debugging only 
+    ! print *, myid, i,jcount,"id,i,jcount (pi_omp)"
+    
   end do  
   !$OMP END DO 
+  
+  ! debugging
+  ! print *, myid, jcount,"id,jcount (pi_omp)"
+  
   !$OMP END PARALLEL
 
   ! debug to determine how many trials actually executed 
-  print *, i
+  ! print *, jcount,"jcount (pi_omp)"
 
   ! calculate pi by taking the ratio of points inside to outside 
   ! the unit cirle (compare area of circle to square)
-  pir = 4*(1 - nout/n)
+  pir = 4*(1 - dble(nout)/dble(n))
+  
+  ! db print statement 
+  ! print *,jcount,n,nout,pir,"jcount,n,nout,pi (pi_omp)"
 
   return 
-end function pi_omp
+end subroutine pi_omp

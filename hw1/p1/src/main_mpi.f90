@@ -9,30 +9,45 @@ program main
   use mpi
   
   ! largest number of iterations: 10^n 
-  integer*8, parameter :: n = 16
-  integer*8 :: ntrials
+  integer*8, parameter :: n = 10
+  integer*8 :: ntrials,i
   real*8, parameter :: pi = 3.14159265358979326846
   real*8 :: pi_appx,err
-  real*8 :: tbeg,tend
   
-  real*8 :: pi_mpi
   integer :: ierr,iproc
+  real *8 :: tbeg,tend
 
   ! initialize MPI
   call MPI_INIT(ierr)
   call MPI_COMM_RANK(MPI_COMM_WORLD,iproc,ierr)
   
-  ! run Monte Carlo calucation for 10^i trials
+  ! run Monte Carlo calculation for 10^i trials
   ! compare the relative error to exact answer
   do i=1,n
+    ! set number of Monte Carlo trials 
     ntrials=10**i
-    ! time each call for scaling 
-    call cpu_time(tbeg)
-    pi_appx = pi_mpi(ntrials)
-    call cpu_time(tend)
-    err = abs(pi_appx - PI)/PI
+
+    ! have master begin clock 
     if (iproc < 1) then 
-      print *, i,err,tend-tbeg
+      ! time each call for scaling 
+      tbeg = MPI_WTIME()
+    end if 
+
+    ! call subroutine 
+    call pi_mpi(ntrials,pi_appx)
+
+    ! master ends clock 
+    if (iproc < 1) then 
+      tend = MPI_WTIME()
+    end if 
+
+    ! calculate error 
+    err = abs(pi_appx - PI)/PI
+
+    ! master prints results to file 
+    if (iproc < 1) then 
+      print *, ntrials,"ntrials (main)"
+      print *, i,err,tend-tbeg,"i,err,time (main)"
     end if 
   end do 
 

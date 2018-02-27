@@ -1,5 +1,5 @@
 ! program to loop over different values of Monte Carlo iterations
-! for calculating pi with function pi_mc.f90 
+! for calculating pi with subroutine pi_omp.f90 
 ! Jeff Lestz 
 ! 22 Feb 2018 
 !
@@ -24,14 +24,12 @@ program main_omp
     
     ! time each call for scaling 
     tbeg = OMP_GET_WTIME()
-    print *, ntrials,"ntrials (main)"
     call pi_omp(ntrials,pi_appx)
     tend = OMP_GET_WTIME() 
     
     ! print error for convergence
     err = abs(pi_appx - PI)/PI
     print *, i,err,tend-tbeg,"i,err,time (main)"
-    print *," "
   end do 
 
 end program main_omp

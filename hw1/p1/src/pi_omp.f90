@@ -1,4 +1,5 @@
 ! subroutine for computing pi via Monte Carlo simulations 
+! uses openmp to parallelize the independent iterations
 ! Jeff Lestz
 ! 22 Feb 2018
 !
@@ -13,26 +14,18 @@ subroutine pi_omp(n,pir)
   real*8, intent(out) :: pir
   
   integer*8 :: i,u,v,w
-  integer*8 :: nout,jcount
+  integer*8 :: nout
   real*8 :: r1,r2
-  integer :: myid,maxth,nth
-  integer :: OMP_GET_THREAD_NUM, OMP_GET_MAX_THREADS, OMP_GET_NUM_THREADS
+  
+  integer :: OMP_GET_THREAD_NUM
+  integer :: myid
 
-  ! initialize variables 
-  ! jcount is number of iterations done by each proc (for debug)
-  jcount = 0
   ! nout is number of points falling outside unit circle
   nout = 0
 
-  !$OMP PARALLEL PRIVATE(myid,i,u,v,w,r1,r2),REDUCTION(+:nout),REDUCTION(+:jcount)
+  !$OMP PARALLEL PRIVATE(myid,i,u,v,w,r1,r2),REDUCTION(+:nout)
   myid = OMP_GET_THREAD_NUM()
 
-  !if (myid < 1) then 
-  !  maxth = OMP_GET_MAX_THREADS()
-  !  nth = OMP_GET_NUM_THREADS()
-  !  print *, nth,maxth,"nth,maxth (pi_omp)"
-  !end if 
-  
   ! initialize random number generator 
   ! note: seeds should be different for each thread
   ! else may only do n/threads unique trials. 
@@ -44,9 +37,6 @@ subroutine pi_omp(n,pir)
   !$OMP DO
   do i=1,n
 
-    ! for debugging, count iterations done by each proc
-    jcount = jcount + 1
-    
     ! generate x and y coordinates 
     ! generate random numbers 
     call ran1(u,v,w,r1)
@@ -62,26 +52,14 @@ subroutine pi_omp(n,pir)
     ! and improve parallelism)
     nout = nout + floor(r1**2 + r2**2)
 
-    ! for debugging only 
-    ! print *, myid, i,jcount,"id,i,jcount (pi_omp)"
-    
   end do  
   !$OMP END DO 
   
-  ! debugging
-  ! print *, myid, jcount,"id,jcount (pi_omp)"
-  
   !$OMP END PARALLEL
-
-  ! debug to determine how many trials actually executed 
-  ! print *, jcount,"jcount (pi_omp)"
 
   ! calculate pi by taking the ratio of points inside to outside 
   ! the unit cirle (compare area of circle to square)
   pir = 4*(1 - dble(nout)/dble(n))
   
-  ! db print statement 
-  ! print *,jcount,n,nout,pir,"jcount,n,nout,pi (pi_omp)"
-
   return 
 end subroutine pi_omp

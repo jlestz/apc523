@@ -1,9 +1,10 @@
-! program to loop over different values of Monte Carlo iterations
-! for calculating pi with function pi_mc.f90 
+! program to measure scaling with number of omp threads
+! for a fixed problem size in subroutine pi_omp.f90
 ! Jeff Lestz 
 ! 26 Feb 2018 
 !
-! set the parameter n to set the range of 10^n to loop over
+! set the parameters maxthreads, minthreads, dthreads
+! to set the number of threads to loop over
 
 program main_omp_scale 
   
@@ -27,14 +28,10 @@ program main_omp_scale
     ! set the number of threads 
     call OMP_SET_NUM_THREADS(nthreads)
     
-    print *,nthreads,"before pi_omp"
-    
     ! run the calculation 
     call pi_omp(ntrials,pi_appx)
     tend = OMP_GET_WTIME()
 
-    print *,nthreads,"post pi_omp"
-    
     ! print error and time elapsed 
     err = abs(pi_appx - PI)/PI
     print *, nthreads,err,tend-tbeg,"nth,err,time (main)"

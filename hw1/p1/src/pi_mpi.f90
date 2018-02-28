@@ -8,25 +8,23 @@
 ! note: random walks will converge with sqrt(n)
 ! so accuracy to 10^n requires 10^2n trials
 
-subroutine pi_mpi(n,pir) 
+subroutine pi_mpi(ntrials,pir) 
   use mpi
   
   implicit none 
-  integer*8, intent(in) :: n
+  integer*8, intent(in) :: ntrials
   real*8, intent(out) :: pir
-  real*8 :: mypir 
 
-  integer*8 :: i,jcount,jtot
+  integer*8 :: i,mynout,nout
   integer*8 :: u,v,w
-  real*8 :: r1,r2,mynout,nout
-  integer :: ierr,iproc,nproc
+  real*8 :: r1,r2
+  integer :: ierr,iproc,nproc 
 
-  ! Initialize MPI 
-  ! call MPI_INIT(ierr) 
+  ! MPI parameters  
   call MPI_COMM_SIZE(MPI_COMM_WORLD,nproc,ierr)
   call MPI_COMM_RANK(MPI_COMM_WORLD,iproc,ierr)
 
-  jcount = 0 
+  mynout = 0
 
   ! initialize random number generator 
   ! note: seeds must be different for each thread
@@ -34,10 +32,8 @@ subroutine pi_mpi(n,pir)
   call ran1_init(iproc,u,v,w)
 
   ! stepping by nproc is effective 1D domain decomposition
-  do i=1,n,nproc
+  do i=iproc,ntrials-1,nproc
 
-    jcount = jcount + 1
-    
     ! generate x and y coordinates 
     ! generate random numbers 
     call ran1(u,v,w,r1)
@@ -53,29 +49,18 @@ subroutine pi_mpi(n,pir)
     ! and improve parallelism)
     mynout = mynout + floor(r1**2 + r2**2)
 
-  end do  
+  end do 
 
-  ! all reduce nout (for result) and jtot (for debugging) 
-  ! not sure if this is the best way to communicate yet... 
-  call MPI_ALLREDUCE(mynout,nout,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
-  call MPI_ALLREDUCE(jcount,jtot,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
-
-  ! option to calculate local value of pi instead 
-  ! but then really should take a weighted average of values, kind of messy 
-  mypir = 4*(1 - nout/jcount)
+  ! reduce nout to all procs
+  ! (to only calculate pi, a reduce to master would be sufficient, but 
+  ! the allreduce is more general since it allows the procs to do further
+  ! calculations with the result. For nprocs <= 40, the extra cost of 
+  ! communication should be minimal)
+  call MPI_ALLREDUCE(mynout,nout,1,MPI_INTEGER8,MPI_SUM,MPI_COMM_WORLD,ierr)
 
   ! calculate pi by taking the ratio of points inside to outside 
   ! the unit cirle (compare area of circle to square)
-  pir = 4*(1 - nout/n)
+  pir = 4*(1 - dble(nout)/dble(ntrials))
   
-  ! debug to determine how many trials actually executed 
-  print *, iproc,jcount,mynout,mypir,"i,j,nout,pi (pi_mpi)"
-  if (iproc < 1) then  
-    print *, n,jtot,nout,pir,"n,jtot,nout,pi (pi_mpi)"
-  end if 
-  
-  ! close MPI
-  ! call MPI_FINALIZE(ierr)
-
-  return 
+    return 
 end subroutine pi_mpi

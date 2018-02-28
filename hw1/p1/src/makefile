@@ -4,8 +4,12 @@ MPI = mpifort
 OPT = -O2
 DB= -g  
 
-all: pi_omp pi_mpi
+all: pi_omp pi_omp_scale pi_mpi
 
+test : test.f90 ran1.f90
+	$(MPI) $^ -o test.x
+
+# main executables 
 pi_omp : ran1.o pi_omp.o main_omp.o
 	$(OMP) $^ -o pi_omp.x
 
@@ -14,15 +18,6 @@ pi_omp_scale : ran1.o pi_omp.o main_omp_scale.o
 
 pi_mpi : ran1.o pi_mpi.o main_mpi.o 
 	$(MPI) $^ -o pi_mpi.x
-
-omp_db : ran1.o pi_omp.o main_db.o $(OBJ)
-	$(OMP) $(DB) $^ -o omp_db.x 
-
-mueller_mpi : mueller_mpi.o
-	$(MPI) $^ -o mueller_mpi.x
-
-test_mpi : main_test.f90 s1.f90 s2.f90
-	$(MPI) -g -O0 $^ -o test_mpi.x
 
 # OMP objects 
 main_omp_scale.o : main_omp_scale.f90 
@@ -41,12 +36,19 @@ pi_mpi.o : pi_mpi.f90
 main_mpi.o : main_mpi.f90 
 	$(MPI) -c $^ -o $@
 
-mueller_mpi.o : mueller_mpi.f90 
-	$(MPI) -c $^ -o $@
-
 # generic object 
 %.o: %.f90
 	$(FTN) -c $< -o $@
 
 clean: 
 	rm *.o *.x
+
+# misc other
+omp_db : ran1.o pi_omp.o main_db.o $(OBJ)
+	$(OMP) $(DB) $^ -o omp_db.x 
+
+mueller_mpi : mueller_mpi.o
+	$(MPI) $^ -o mueller_mpi.x
+
+mueller_mpi.o : mueller_mpi.f90 
+	$(MPI) -c $^ -o $@

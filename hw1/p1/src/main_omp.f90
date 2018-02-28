@@ -12,7 +12,7 @@ program main_omp
   ! largest number of iterations: 10^n 
   integer*8, parameter :: n = 12
   integer*8 :: ntrials,i
-  real*8, parameter :: pi = 3.14159265358979326846
+  real*8, parameter :: pi = 3.14159265358979323846
   real*8 :: pi_appx,err
 
   real*8 :: OMP_GET_WTIME,tbeg,tend
@@ -29,7 +29,7 @@ program main_omp
     
     ! print error for convergence
     err = abs(pi_appx - PI)/PI
-    print *, i,err,tend-tbeg,"i,err,time (main)"
+    print *, ntrials,err,tend-tbeg
   end do 
 
 end program main_omp

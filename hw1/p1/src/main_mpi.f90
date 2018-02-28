@@ -9,9 +9,9 @@ program main
   use mpi
   
   ! largest number of iterations: 10^n 
-  integer*8, parameter :: n = 10
+  integer*8, parameter :: n = 12
   integer*8 :: ntrials,i
-  real*8, parameter :: pi = 3.14159265358979326846
+  real*8, parameter :: pi = 3.14159265358979323846
   real*8 :: pi_appx,err
   
   integer :: ierr,iproc
@@ -35,19 +35,14 @@ program main
 
     ! call subroutine 
     call pi_mpi(ntrials,pi_appx)
-
-    ! master ends clock 
-    if (iproc < 1) then 
-      tend = MPI_WTIME()
-    end if 
-
+    
     ! calculate error 
     err = abs(pi_appx - PI)/PI
 
-    ! master prints results to file 
+    ! master ends clock and prints results to file 
     if (iproc < 1) then 
-      print *, ntrials,"ntrials (main)"
-      print *, i,err,tend-tbeg,"i,err,time (main)"
+      tend = MPI_WTIME()
+      print *, ntrials,err,tend-tbeg,"(main)"
     end if 
   end do 
 

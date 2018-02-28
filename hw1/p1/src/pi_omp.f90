@@ -10,7 +10,7 @@
 
 subroutine pi_omp(n,pir) 
   implicit none 
-  integer*8, intent(in) :: n
+  integer*8, intent(in) :: ntrials
   real*8, intent(out) :: pir
   
   integer*8 :: i,u,v,w
@@ -35,7 +35,7 @@ subroutine pi_omp(n,pir)
   call ran1_init(myid,u,v,w)
 
   !$OMP DO
-  do i=1,n
+  do i=1,ntrials
 
     ! generate x and y coordinates 
     ! generate random numbers 
@@ -59,7 +59,7 @@ subroutine pi_omp(n,pir)
 
   ! calculate pi by taking the ratio of points inside to outside 
   ! the unit cirle (compare area of circle to square)
-  pir = 4*(1 - dble(nout)/dble(n))
+  pir = 4*(1 - dble(nout)/dble(ntrials))
   
   return 
 end subroutine pi_omp

@@ -10,7 +10,7 @@ program main_omp_scale
   
   implicit none 
 
-  real*8, parameter :: pi = 3.14159265358979326846
+  real*8, parameter :: pi = 3.14159265358979323846
   integer*8, parameter :: ntrials = 10**11
   integer, parameter :: maxthreads=20,minthreads=2,dthreads=2
   
@@ -18,13 +18,14 @@ program main_omp_scale
   real*8 :: pi_appx,err
   real*8 :: OMP_GET_WTIME,tbeg,tend
 
-  ! run Monte Carlo calucation with i omp threads
-  ! fixed problem size: ntrials = 10^8
+  ! run Monte Carlo calucation with nthreads omp threads
+  ! fixed problem size: ntrials = 10^11
   ! compare the time elapsed to determine strong scaling 
   do nthreads = maxthreads, minthreads, -dthreads
 
     ! time each call for scaling 
     tbeg = OMP_GET_WTIME()
+    
     ! set the number of threads 
     call OMP_SET_NUM_THREADS(nthreads)
     
@@ -34,7 +35,7 @@ program main_omp_scale
 
     ! print error and time elapsed 
     err = abs(pi_appx - PI)/PI
-    print *, nthreads,err,tend-tbeg,"nth,err,time (main)"
+    print *, nthreads,err,tend-tbeg
   end do 
 
 end program main_omp_scale

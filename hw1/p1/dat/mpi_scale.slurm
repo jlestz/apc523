@@ -1,5 +1,5 @@
 #!/bin/bash 
-#SBATCH --nodes=1 
+#SBATCH --nodes=2 
 #SBATCH --ntasks-per-node=20
 #SBATCH --cpus-per-task=1
 #SBATCH --time=00:50:00 
@@ -14,4 +14,4 @@ cd $rundir
 
 module load openmpi
 
-srun -n 20 $srcdir/pi_mpi.x > $rundir/out_pi_mpi
+srun -n 40 $srcdir/pi_mpi_scale.x > $rundir/out_pi_mpi_scale

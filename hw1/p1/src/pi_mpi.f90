@@ -8,10 +8,11 @@
 ! note: random walks will converge with sqrt(n)
 ! so accuracy to 10^n requires 10^2n trials
 
-subroutine pi_mpi(ntrials,pir) 
+subroutine pi_mpi(comm,ntrials,pir) 
   use mpi
   
   implicit none 
+  integer, intent(in) :: comm
   integer*8, intent(in) :: ntrials
   real*8, intent(out) :: pir
 
@@ -21,8 +22,8 @@ subroutine pi_mpi(ntrials,pir)
   integer :: ierr,iproc,nproc 
 
   ! MPI parameters  
-  call MPI_COMM_SIZE(MPI_COMM_WORLD,nproc,ierr)
-  call MPI_COMM_RANK(MPI_COMM_WORLD,iproc,ierr)
+  call MPI_COMM_SIZE(comm,nproc,ierr)
+  call MPI_COMM_RANK(comm,iproc,ierr)
 
   mynout = 0
 
@@ -56,7 +57,7 @@ subroutine pi_mpi(ntrials,pir)
   ! the allreduce is more general since it allows the procs to do further
   ! calculations with the result. For nprocs <= 40, the extra cost of 
   ! communication should be minimal)
-  call MPI_ALLREDUCE(mynout,nout,1,MPI_INTEGER8,MPI_SUM,MPI_COMM_WORLD,ierr)
+  call MPI_ALLREDUCE(mynout,nout,1,MPI_INTEGER8,MPI_SUM,comm,ierr)
 
   ! calculate pi by taking the ratio of points inside to outside 
   ! the unit cirle (compare area of circle to square)

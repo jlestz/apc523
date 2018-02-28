@@ -5,9 +5,10 @@
 !
 ! set the parameter n to set the range of 10^n to loop over
 
-program main 
+program main_mpi 
   use mpi
-  
+
+  implicit none
   ! largest number of iterations: 10^n 
   integer*8, parameter :: n = 12
   integer*8 :: ntrials,i
@@ -34,7 +35,7 @@ program main
     end if 
 
     ! call subroutine 
-    call pi_mpi(ntrials,pi_appx)
+    call pi_mpi(MPI_COMM_WORLD,ntrials,pi_appx)
     
     ! calculate error 
     err = abs(pi_appx - PI)/PI
@@ -49,4 +50,4 @@ program main
   ! close MPI 
   call MPI_FINALIZE(ierr)
 
-end program main
+end program main_mpi

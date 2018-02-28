@@ -4,7 +4,7 @@ MPI = mpifort
 OPT = -O2
 DB= -g  
 
-all: pi_omp pi_omp_scale pi_mpi
+all: pi_omp pi_omp_scale pi_mpi pi_mpi_scale
 
 test : test.f90 ran1.f90
 	$(MPI) $^ -o test.x
@@ -18,6 +18,9 @@ pi_omp_scale : ran1.o pi_omp.o main_omp_scale.o
 
 pi_mpi : ran1.o pi_mpi.o main_mpi.o 
 	$(MPI) $^ -o pi_mpi.x
+
+pi_mpi_scale : ran1.o pi_mpi.o main_mpi_scale.o 
+	$(MPI) $^ -o pi_mpi_scale.x
 
 # OMP objects 
 main_omp_scale.o : main_omp_scale.f90 
@@ -34,6 +37,9 @@ pi_mpi.o : pi_mpi.f90
 	$(MPI) -c $^ -o $@
 
 main_mpi.o : main_mpi.f90 
+	$(MPI) -c $^ -o $@
+
+main_mpi_scale.o : main_mpi_scale.f90 
 	$(MPI) -c $^ -o $@
 
 # generic object 

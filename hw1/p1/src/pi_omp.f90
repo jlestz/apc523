@@ -8,7 +8,7 @@
 ! note: random walks will converge with sqrt(n)
 ! so accuracy to 10^n requires 10^2n trials
 
-subroutine pi_omp(n,pir) 
+subroutine pi_omp(ntrials,pir) 
   implicit none 
   integer*8, intent(in) :: ntrials
   real*8, intent(out) :: pir

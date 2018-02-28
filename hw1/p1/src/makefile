@@ -6,9 +6,6 @@ DB= -g
 
 all: pi_omp pi_omp_scale pi_mpi pi_mpi_scale
 
-test : test.f90 ran1.f90
-	$(MPI) $^ -o test.x
-
 # main executables 
 pi_omp : ran1.o pi_omp.o main_omp.o
 	$(OMP) $^ -o pi_omp.x
@@ -48,13 +45,3 @@ main_mpi_scale.o : main_mpi_scale.f90
 
 clean: 
 	rm *.o *.x
-
-# misc other
-omp_db : ran1.o pi_omp.o main_db.o $(OBJ)
-	$(OMP) $(DB) $^ -o omp_db.x 
-
-mueller_mpi : mueller_mpi.o
-	$(MPI) $^ -o mueller_mpi.x
-
-mueller_mpi.o : mueller_mpi.f90 
-	$(MPI) -c $^ -o $@

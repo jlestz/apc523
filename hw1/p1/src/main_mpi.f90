@@ -43,7 +43,7 @@ program main_mpi
     ! master ends clock and prints results to file 
     if (iproc < 1) then 
       tend = MPI_WTIME()
-      print *, ntrials,err,tend-tbeg,"(main)"
+      print *, ntrials,err,tend-tbeg
     end if 
   end do 
 
